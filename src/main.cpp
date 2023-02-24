@@ -103,8 +103,8 @@ void opcontrol() {
     int right = power - turn;
     fl.move(left);
     fr.move(right);
-	bl.move(left);
-	br.move(right);
+	  bl.move(left);
+	  br.move(right);
 
 
 	if (master.get_digital(DIGITAL_R1)) {
