@@ -23,9 +23,9 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-  pros::Optical optical (5);
-  pros::Gps gps (6);
-  pros::Imu inertial(7);
+  pros::Optical optical (6);
+  pros::Gps gps (5);
+  pros::Imu inertial(12);
   inertial.reset();
   pros::Vision vision (8);
 }
@@ -60,15 +60,15 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-  pros::Optical optical (5);
-  pros::Gps gps (6);
-  pros::Imu inertial(7);
+  pros::Optical optical (6);
+  pros::Gps gps (5);
+  pros::Imu inertial(12);
   inertial.reset();
   pros::Vision vision (8);
   pros::Motor fl (1);
-  pros::Motor fr (2);
-  pros::Motor bl (3);
-  pros::Motor br (4);
+  pros::Motor fr (7, true);
+  pros::Motor bl (10);
+  pros::Motor br (3, true);
   pros::Motor roller(9);
 }
 
@@ -89,9 +89,9 @@ void autonomous() {
 
 void opcontrol() {
   pros::Motor fl (1);
-  pros::Motor fr (2);
-  pros::Motor bl (3);
-  pros::Motor br (4);
+  pros::Motor fr (7, true);
+  pros::Motor bl (10);
+  pros::Motor br (3, true);
   pros::Motor roller(9);
 
   pros::Controller master (CONTROLLER_MASTER);
@@ -103,17 +103,17 @@ void opcontrol() {
     int right = power - turn;
     fl.move(left);
     fr.move(right);
-	  bl.move(left);
-	  br.move(right);
-
-
-	if (master.get_digital(DIGITAL_R1)) {
-	  roller.move(127);
-	} else if (master.get_digital(DIGITAL_R2)) {
-	  roller.move(-127);
-	} else {
-	  roller.move(0);
-	}
+    bl.move(left);
+    br.move(right);
+    if (master.get_digital(DIGITAL_R1)) {
+      roller.move(127);
+    } 
+    else if (master.get_digital(DIGITAL_R2)) {
+      roller.move(-127);
+    } 
+    else {
+      roller.move(0);
+    }
     pros::delay(2);
   }
 }
