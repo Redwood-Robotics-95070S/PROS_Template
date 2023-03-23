@@ -9,12 +9,21 @@
  * to keep execution time for this mode under a few seconds.
  */
 
+int x; // time
 double xinit; // x initial position
 double yinit; // y initial position
 double headinit; // heading initial position (usually 180)
+int auton;
+int numofautons;
 
 void initialize() {
 	GPST.initialize_full(xinit, yinit, headinit, 0, 0);
+	int auton = 1;
+	int numofautons = 3;
+	fl.set_brake_mode(MOTOR_BRAKE_COAST);
+	fr.set_brake_mode(MOTOR_BRAKE_COAST);
+	bl.set_brake_mode(MOTOR_BRAKE_COAST);
+	br.set_brake_mode(MOTOR_BRAKE_COAST);
 }
 
 /**
@@ -23,7 +32,12 @@ void initialize() {
  * the robot is enabled, this task will exit.
  */
 void disabled() {
-	
+	controller.clear();
+	int i = 0;
+	while (i != x) {
+		controller.rumble("." "-");
+		i++;
+	}
 }
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -34,7 +48,34 @@ void disabled() {
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
+void competition_initialize() {
+	int auton = 1;
+	int numofautons = 3;
+	if(controller.get_digital_new_press(DIGITAL_RIGHT)) {
+		auton++;
+		pros::delay(200);
+	}
+	else if(controller.get_digital_new_press(DIGITAL_LEFT)) {
+		auton--;
+		pros::delay(200);
+	}
+
+	if(auton > numofautons) {auton = 1;}
+	if(auton < 1) {auton = numofautons;}
+	
+	if(auton == 1) {
+		controller.clear();
+		controller.set_text(1,1,"one");
+	}
+	else if(auton == 2) {
+		controller.clear();
+		controller.set_text(1,1,"two");
+	}
+	else if(auton == 3) {
+		controller.clear();
+		controller.set_text(1,1,"three");
+	}
+}
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -48,6 +89,21 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	int x = 0;
+	while(1) {
+		pros::delay(1000);
+		x++;
+	}
+	if(auton == 1) {
+		one();
+	}
+	else if(auton == 2) {
+		two();
+	}
+
+	else if(auton == 3) {
+		three();
+	}
 }
 
 /**
@@ -66,4 +122,10 @@ void autonomous() {
 
 
 void opcontrol() {
+	double rightspeed = controller.get_analog(ANALOG_LEFT_X) - controller.get_analog(ANALOG_LEFT_Y);
+	double leftspeed = controller.get_analog(ANALOG_LEFT_X) - controller.get_analog(ANALOG_LEFT_Y);
+	fl.move(leftspeed);
+	fr.move(rightspeed);
+	bl.move(leftspeed);
+	br.move(rightspeed);
 }

@@ -1,5 +1,11 @@
 #include "main.h"
 
+//Autons
+
+void one(void);
+void two(void);
+void three(void);
+
 // Autonomous Functions
 
 // Constantly moving, in namespace vex Motor.spin(direction, speed value, units for speed value);
