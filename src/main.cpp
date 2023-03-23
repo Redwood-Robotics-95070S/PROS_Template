@@ -1,20 +1,6 @@
 #include "main.h"
-//help	
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
+#include "display/lvgl.h"
+
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -22,12 +8,13 @@ void on_center_button() {
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+
+double xinit; // x initial position
+double yinit; // y initial position
+double headinit; // heading initial position (usually 180)
+
 void initialize() {
-  pros::Optical optical (6);
-  pros::Gps gps (5);
-  pros::Imu inertial(12);
-  inertial.reset();
-  pros::Vision vision (8);
+	GPST.initialize_full(xinit, yinit, headinit, 0, 0);
 }
 
 /**
@@ -35,8 +22,9 @@ void initialize() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {}
-
+void disabled() {
+	
+}
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
  * Management System or the VEX Competition Switch. This is intended for
@@ -60,16 +48,6 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-  pros::Optical optical (6);
-  pros::Gps gps (5);
-  pros::Imu inertial(12);
-  inertial.reset();
-  pros::Vision vision (8);
-  pros::Motor fl (1);
-  pros::Motor fr (7, true);
-  pros::Motor bl (10);
-  pros::Motor br (3, true);
-  pros::Motor roller(9);
 }
 
 /**
@@ -88,32 +66,4 @@ void autonomous() {
 
 
 void opcontrol() {
-  pros::Motor fl (1);
-  pros::Motor fr (7, true);
-  pros::Motor bl (10);
-  pros::Motor br (3, true);
-  pros::Motor roller(9);
-
-  pros::Controller master (CONTROLLER_MASTER);
-
-  while (true) {
-    int power = master.get_analog(ANALOG_LEFT_Y);
-    int turn = master.get_analog(ANALOG_LEFT_X);
-    int left = power + turn;
-    int right = power - turn;
-    fl.move(left);
-    fr.move(right);
-    bl.move(left);
-    br.move(right);
-    if (master.get_digital(DIGITAL_R1)) {
-      roller.move(127);
-    } 
-    else if (master.get_digital(DIGITAL_R2)) {
-      roller.move(-127);
-    } 
-    else {
-      roller.move(0);
-    }
-    pros::delay(2);
-  }
 }
