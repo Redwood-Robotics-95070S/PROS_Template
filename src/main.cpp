@@ -15,7 +15,8 @@ double yinit; // y initial position
 double headinit; // heading initial position (usually 180)
 int auton;
 int numofautons;
-
+double xpos = 0; // x coordinate target
+double ypos = 0; // y coordinate target
 void initialize() {
 	GPST.initialize_full(xinit, yinit, headinit, 0, 0);
 	int auton = 1;
@@ -48,32 +49,51 @@ void disabled() {
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
+bool a = 0;
 void competition_initialize() {
 	int auton = 1;
 	int numofautons = 3;
-	if(controller.get_digital_new_press(DIGITAL_RIGHT)) {
-		auton++;
-		pros::delay(200);
+	while(!a){
+		if(controller.get_digital_new_press(DIGITAL_RIGHT)) {
+			auton++;
+			pros::delay(200);
+		}
+		else if(controller.get_digital_new_press(DIGITAL_LEFT)) {
+			auton--;
+			pros::delay(200);
+		}
+		if(controller.get_digital_new_press(DIGITAL_A)){
+			a = 1;
+		}
+		if(auton > numofautons) {auton = 1;}
+		if(auton < 1) {auton = numofautons;}
+		
+		if(auton == 1) {
+			controller.clear();
+			controller.set_text(1,1,"one");
+		}
+		else if(auton == 2) {
+			controller.clear();
+			controller.set_text(1,1,"two");
+		}
+		else if(auton == 3) {
+			controller.clear();
+			controller.set_text(1,1,"three");
+		}
 	}
-	else if(controller.get_digital_new_press(DIGITAL_LEFT)) {
-		auton--;
-		pros::delay(200);
-	}
-
-	if(auton > numofautons) {auton = 1;}
-	if(auton < 1) {auton = numofautons;}
-	
-	if(auton == 1) {
-		controller.clear();
-		controller.set_text(1,1,"one");
-	}
-	else if(auton == 2) {
-		controller.clear();
-		controller.set_text(1,1,"two");
-	}
-	else if(auton == 3) {
-		controller.clear();
-		controller.set_text(1,1,"three");
+	while (a) {
+		if(controller.get_digital_new_press(DIGITAL_RIGHT)){
+			xpos++;
+		}
+		else if(controller.get_digital_new_press(DIGITAL_LEFT)) {
+			xpos--;
+		}
+		if(controller.get_digital_new_press(DIGITAL_UP)){
+			ypos++;
+		}
+		else if(controller.get_digital_new_press(DIGITAL_DOWN)) {
+			ypos--;
+		}
 	}
 }
 
