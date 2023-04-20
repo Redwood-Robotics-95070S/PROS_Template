@@ -10,35 +10,74 @@
  */
 
 int x; // time
-double xinit; // x initial position
-double yinit; // y initial position
-double headinit; // heading initial position (usually 180)
-int auton;
-int numofautons;
-double xpos = 0; // x coordinate target
-double ypos = 0; // y coordinate target
-void initialize() {
-	GPST.initialize_full(xinit, yinit, headinit, 0, 0);
-	int auton = 1;
-	int numofautons = 3;
-	fl.set_brake_mode(MOTOR_BRAKE_COAST);
-	fr.set_brake_mode(MOTOR_BRAKE_COAST);
-	bl.set_brake_mode(MOTOR_BRAKE_COAST);
-	br.set_brake_mode(MOTOR_BRAKE_COAST);
-}
-
+int mode = 1;
+int sensitivity = 1;
+bool a = 1;
 /**
  * Runs while the robot is in the disabled state of Field Management System or
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
 void disabled() {
-	controller.clear();
-	int i = 0;
-	while (i != x) {
-		controller.rumble("." "-");
-		i++;
+	while(a) {
+		if(controller.get_digital_new_press(DIGITAL_RIGHT)) {
+			mode++;
+		}
+		else if(controller.get_digital_new_press(DIGITAL_LEFT)) {
+			mode--;
+		}
+		if(mode > 3) {
+			mode = 1;
+			pros::delay(100);
+		}
+		else if(mode < 1) {
+			mode = 3;
+			pros::delay(100);
+		}
+		if(mode == 1) {
+			controller.clear();
+			controller.print(1,1,"arcade 1 joystick");
+		}
+		else if(mode == 2) {
+			controller.clear();
+			controller.print(1,1,"arcade 2 joystick");
+		}
+		else if(mode == 3) {
+			controller.clear();
+			controller.print(1,1,"tank");
+		}
 	}
+	if(controller.get_digital_new_press(DIGITAL_A)) {
+		a = 0;
+	}
+	while(!a) {
+		controller.clear();
+		controller.print(0, 0, "Sensitivity: %d", sensitivity);
+		if(controller.get_digital_new_press(DIGITAL_A)) {
+			a = 1;
+		}
+		if(controller.get_digital_new_press(DIGITAL_UP)) {
+			sensitivity++;
+			pros::delay(100);
+		}
+		else if(controller.get_digital_new_press(DIGITAL_DOWN)) {
+			sensitivity--;
+			pros::delay(100);
+		}
+		if(controller.get_digital_new_press(DIGITAL_RIGHT)) {
+			sensitivity += 10;
+		}
+		else if(controller.get_digital_new_press(DIGITAL_LEFT)) {
+			sensitivity -= 10;
+		}
+		if(sensitivity > 200) {
+			sensitivity = 1;
+		}
+		else if(sensitivity < 1) {
+			sensitivity = 200;
+		}
+	}
+	
 }
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -51,50 +90,7 @@ void disabled() {
  */
 bool a = 0;
 void competition_initialize() {
-	int auton = 1;
-	int numofautons = 3;
-	while(!a){
-		if(controller.get_digital_new_press(DIGITAL_RIGHT)) {
-			auton++;
-			pros::delay(200);
-		}
-		else if(controller.get_digital_new_press(DIGITAL_LEFT)) {
-			auton--;
-			pros::delay(200);
-		}
-		if(controller.get_digital_new_press(DIGITAL_A)){
-			a = 1;
-		}
-		if(auton > numofautons) {auton = 1;}
-		if(auton < 1) {auton = numofautons;}
-		
-		if(auton == 1) {
-			controller.clear();
-			controller.set_text(1,1,"one");
-		}
-		else if(auton == 2) {
-			controller.clear();
-			controller.set_text(1,1,"two");
-		}
-		else if(auton == 3) {
-			controller.clear();
-			controller.set_text(1,1,"three");
-		}
-	}
-	while (a) {
-		if(controller.get_digital_new_press(DIGITAL_RIGHT)){
-			xpos++;
-		}
-		else if(controller.get_digital_new_press(DIGITAL_LEFT)) {
-			xpos--;
-		}
-		if(controller.get_digital_new_press(DIGITAL_UP)){
-			ypos++;
-		}
-		else if(controller.get_digital_new_press(DIGITAL_DOWN)) {
-			ypos--;
-		}
-	}
+	controller.rumble("...");
 }
 
 /**
@@ -109,21 +105,7 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
-	int x = 0;
-	while(1) {
-		pros::delay(1000);
-		x++;
-	}
-	if(auton == 1) {
-		one();
-	}
-	else if(auton == 2) {
-		two();
-	}
 
-	else if(auton == 3) {
-		three();
-	}
 }
 
 /**
@@ -142,10 +124,23 @@ void autonomous() {
 
 
 void opcontrol() {
-	double rightspeed = controller.get_analog(ANALOG_LEFT_X) - controller.get_analog(ANALOG_LEFT_Y);
-	double leftspeed = controller.get_analog(ANALOG_LEFT_X) - controller.get_analog(ANALOG_LEFT_Y);
-	fl.move(leftspeed);
-	fr.move(rightspeed);
-	bl.move(leftspeed);
-	br.move(rightspeed);
+	
+	if(mode == 1) {
+		fl.move((controller.get_analog(ANALOG_LEFT_X) + controller.get_analog(ANALOG_LEFT_Y))*sensitivity*0.01);
+		fr.move((controller.get_analog(ANALOG_LEFT_X) - controller.get_analog(ANALOG_LEFT_Y))*sensitivity*0.01);
+		bl.move((controller.get_analog(ANALOG_LEFT_X) - controller.get_analog(ANALOG_LEFT_Y))*sensitivity*0.01);
+		br.move((controller.get_analog(ANALOG_LEFT_X) + controller.get_analog(ANALOG_LEFT_Y))*sensitivity*0.01);
+	}
+	else if(mode == 2) {
+		fl.move((controller.get_analog(ANALOG_LEFT_X) + controller.get_analog(ANALOG_RIGHT_Y))*sensitivity*0.01);
+		fr.move((controller.get_analog(ANALOG_LEFT_X) - controller.get_analog(ANALOG_RIGHT_Y))*sensitivity*0.01);
+		bl.move((controller.get_analog(ANALOG_LEFT_X) - controller.get_analog(ANALOG_RIGHT_Y))*sensitivity*0.01);
+		br.move((controller.get_analog(ANALOG_LEFT_X) + controller.get_analog(ANALOG_RIGHT_Y))*sensitivity*0.01);
+	}
+	else if(mode == 3) {
+		fl.move((controller.get_analog(ANALOG_LEFT_X))*sensitivity*0.01);
+		fr.move((controller.get_analog(ANALOG_RIGHT_X))*sensitivity*0.01);
+		bl.move((controller.get_analog(ANALOG_LEFT_X))*sensitivity*0.01);
+		br.move((controller.get_analog(ANALOG_RIGHT_X))*sensitivity*0.01);
+	}
 }
