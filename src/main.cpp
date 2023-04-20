@@ -124,7 +124,6 @@ void autonomous() {
 
 
 void opcontrol() {
-	
 	if(mode == 1) {
 		fl.move((controller.get_analog(ANALOG_LEFT_X) + controller.get_analog(ANALOG_LEFT_Y))*sensitivity*0.01);
 		fr.move((controller.get_analog(ANALOG_LEFT_X) - controller.get_analog(ANALOG_LEFT_Y))*sensitivity*0.01);
