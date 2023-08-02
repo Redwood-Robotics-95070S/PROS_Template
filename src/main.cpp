@@ -1,6 +1,5 @@
 #include "main.h"
 #include "display/lvgl.h"
-#include "autons.h"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
