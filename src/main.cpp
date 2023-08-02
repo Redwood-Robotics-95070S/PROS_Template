@@ -87,7 +87,7 @@ void disabled() {
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-bool a = 0;
+
 void competition_initialize() {
 	controller.rumble("...");
 }
