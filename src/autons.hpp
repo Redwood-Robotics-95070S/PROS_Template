@@ -4,6 +4,9 @@
 
 //pls make sure u know what these functions r before using them
 
+//2 for green, 1 for red, 6 for blue
+const int gearset = 2;
+
 //set motors to coasting
 void setcoast() {
     fl.set_brake_mode(MOTOR_BRAKE_COAST);
@@ -26,12 +29,19 @@ void setbrake() {
     br.set_brake_mode(MOTOR_BRAKE_BRAKE);
 }
 
+void stopping() {
+    fl.brake();
+    fr.brake();
+    bl.brake();
+    br.brake();
+}
+
 //set drivetrain velocity pct value
 void setv(double pctamt) {
-    fl.move_velocity(pctamt*200*0.01);
-    fr.move_velocity(pctamt*200*0.01);
-    bl.move_velocity(pctamt*200*0.01);
-    br.move_velocity(pctamt*200*0.01);
+    fl.move_velocity(pctamt*gearset);
+    fr.move_velocity(pctamt*gearset);
+    bl.move_velocity(pctamt*gearset);
+    br.move_velocity(pctamt*gearset);
 }
 
 //set drivetrain velocity rpm value
@@ -44,10 +54,10 @@ void setvrpm(double rpmamt) {
 
 //move forward or backward an amount of degrees at a set velocity then wait for a set amount, waittime and vcity (wait time and velocity) are optional parameters, and are defaulted to 20 ms and 100 pct velocity, but can be changed when called
 void forback(double amt, int waittime = 0, double vcity = 100) {
-    fl.move_relative(amt, vcity*200*0.01);
-    fr.move_relative(amt, vcity*200*0.01);
-    bl.move_relative(amt, vcity*200*0.01);
-    br.move_relative(amt, vcity*200*0.01);
+    fl.move_relative(amt, vcity*gearset);
+    fr.move_relative(amt, vcity*gearset);
+    bl.move_relative(amt, vcity*gearset);
+    br.move_relative(amt, vcity*gearset);
     pros::delay(waittime);
 }
 
@@ -62,10 +72,10 @@ void forbackrpm(double amt, int waittime = 0, double vcity = 200) {
 
 //same as forbackpct but for turning, positive value turns right, negative value turns left
 void turnpct(double amt, int waittime = 0, double vcity = 100) {
-    fl.move_relative(amt, vcity*200*0.01);
-    fr.move_relative(-amt, vcity*200*0.01);
-    bl.move_relative(amt, vcity*200*0.01);
-    br.move_relative(-amt, vcity*200*0.01);
+    fl.move_relative(amt, vcity*gearset);
+    fr.move_relative(-amt, vcity*gearset);
+    bl.move_relative(amt, vcity*gearset);
+    br.move_relative(-amt, vcity*gearset);
     pros::delay(waittime);
 }
 
@@ -77,38 +87,93 @@ void turnrpm(double amt, int waittime = 0, double vcity = 200) {
     br.move_relative(-amt, vcity);
     pros::delay(waittime);
 }
-//someone help this is vexcode version and idk how to make motors move without giving them a value, and having them run forever 
-/*
-void ForBack(double ms) {
-  fl.spin(forward);
-  fr.spin(forward);
-  bl.spin(forward);
-  br.spin(forward);
-  wait(ms,msec);
-  fl.stop();
-  fr.stop();
-  bl.stop();
-  br.stop();
+
+//move forward for an amount of time 
+void For(double waittime, double volt = 127) {
+    sethold();
+    fl.move(volt);
+    fr.move(volt);
+    bl.move(volt);
+    br.move(volt);
+    delay(waittime);
+    //pros::delay(waittime);
+    stopping();
 }
 
-//same as above but for turning, bool dir 1 is turning right, 0 is turning left (true is right, false is left)
-void Turn(double ms, bool dir) {
-  if(dir) {
-    fl.spin(forward);
-    fr.spin(reverse);
-    bl.spin(forward);
-    br.spin(reverse);
-  }
-  else {
-    fl.spin(reverse);
-    fr.spin(forward);
-    bl.spin(reverse);
-    br.spin(forward);
-  }
-  wait(ms,msec);
-  fl.stop();
-  fr.stop();
-  bl.stop();
-  br.stop();
+//same as above but reverse
+void Rev(double waittime, double volt = 127) {
+    sethold();
+    fl.move(-volt);
+    fr.move(-volt);
+    bl.move(-volt);
+    br.move(-volt);
+    delay(waittime);
+    //pros::delay(waittime);
+    stopping();
 }
-*/
+
+//same as above but turning. turns right unless dir is set to 0
+void Turn(double waittime, bool dir = 1, double volt = 127) {
+    sethold();
+    if(dir) {
+        fl.move(volt);
+        fr.move(-volt);
+        bl.move(volt);
+        br.move(-volt);
+    }
+    else {
+        fl.move(-volt);
+        fr.move(volt);
+        bl.move(-volt);
+        br.move(volt);
+    }
+    delay(waittime);
+    //pros::delay(waittime);
+    stopping();
+}
+
+//everything above but in rpm
+
+//move forward for an amount of time 
+void Forrpm(double waittime, double rpm = 100) {
+    sethold();
+    fl.move(rpm*gearset);
+    fr.move(rpm*gearset);
+    bl.move(rpm*gearset);
+    br.move(rpm*gearset);
+    delay(waittime);
+    //pros::delay(waittime);
+    stopping();
+}
+
+//same as above but reverse
+void Revrpm(double waittime, double rpm = 127) {
+    sethold();
+    fl.move(-rpm*gearset);
+    fr.move(-rpm*gearset);
+    bl.move(-rpm*gearset);
+    br.move(-rpm*gearset);
+    delay(waittime);
+    //pros::delay(waittime);
+    stopping();
+}
+
+//same as above but turning. turns right unless dir is set to 0
+void Turnrpm(double waittime, bool dir = 1, double rpm = 127) {
+    sethold();
+    if(dir) {
+        fl.move(rpm*gearset);
+        fr.move(-rpm*gearset);
+        bl.move(rpm*gearset);
+        br.move(-rpm*gearset);
+    }
+    else {
+        fl.move(-rpm*gearset);
+        fr.move(rpm*gearset);
+        bl.move(-rpm*gearset);
+        br.move(rpm*gearset);
+    }
+    delay(waittime);
+    //pros::delay(waittime);
+    stopping();
+}

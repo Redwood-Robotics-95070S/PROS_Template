@@ -10,7 +10,7 @@ extern Motor bl;
 extern Motor br;
 extern GPS GPST;
 
-pros::Motor fl(1,true);
+pros::Motor fl(1, true);
 pros::Motor fr(7,false);
 pros::Motor bl(10,true);
 pros::Motor br(3,false);
