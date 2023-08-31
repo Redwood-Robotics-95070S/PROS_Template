@@ -8,10 +8,15 @@
  * to keep execution time for this mode under a few seconds.
  */
 
+void initialize() {
+	controller.rumble("...");
+}
+
 int x; // time
 int mode = 1;
 int sensitivity = 1;
 bool a = 1;
+
 /**
  * Runs while the robot is in the disabled state of Field Management System or
  * the VEX Competition Switch, following either autonomous or opcontrol. When
@@ -88,8 +93,38 @@ void disabled() {
  * starts.
  */
 
+int auton = 1;
+int max = 3;
 void competition_initialize() {
-	controller.rumble("...");
+	if(controller.get_digital_new_press(DIGITAL_RIGHT)) {
+		auton++;
+		delay(100);
+	}
+	else if(controller.get_digital_new_press(DIGITAL_LEFT)) {
+		auton--;
+		delay(100);
+	}
+
+	if(auton > max) {
+		auton = 1;
+		pros::delay(100);
+	}
+	else if(auton < 1) {
+		auton = max;
+		pros::delay(100);
+	}
+	if(auton == 1) {
+		controller.clear();
+		controller.print(1,1,"auton 1");
+	}
+	else if(auton == 2) {
+		controller.clear();
+		controller.print(1,1,"auton 2");
+	}
+	else if(auton == 3) {
+		controller.clear();
+		controller.print(1,1,"auton 3");
+	}
 }
 
 /**
